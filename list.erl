@@ -10,7 +10,7 @@
 -author("Helge").
 
 %% API
--export([main/0,create/0,isEmpty/1,isList/1,equal/2,laenge/1,insert/3, delete/2, concat/2,get_head/2]).
+-export([main/0,create/0,isEmpty/1,isList/1,equal/2,laenge/1,insert/3, delete/2, find/2,retrieve/2, concat/2]).
 
 main() ->
   List1 = {3,{5,{2,{8}}}},
@@ -20,7 +20,7 @@ main() ->
 %%  isEmpty(List4).
 %%  equal(List1,List2).
 %%  insert(List1,1,7).
-insert(List1,3,9).
+  insert(List1,5,9).
 
 create() -> List = {}.
 
@@ -42,38 +42,35 @@ laenge({A}) -> 1;
 laenge(List) -> {_A,B} = List,
   1 + laenge(B).
 
-insert(A,0,Elem) -> A;
-insert({HList,TList},0,Elem) -> {HList};
-insert({HList,TList},Pos,Elem)  -> {HList, insert(TList,Pos -1, Elem )}.
 
-%%insert(List,Pos,Elem) -> insert(List,Pos,Elem,{}).
-%%insert({},Pos,Elem,List) -> List;
-%%insert({A},Pos,Elem,List) -> {A,List};
-%%insert(OldList,Pos,Elem,NewList) -> {ActE,RestList} = OldList,
-%%  NewList2 = {ActE,NewList},
-%%  insert(RestList,Pos,Elem,NewList2).
+insert(List, 1, Element) -> {Element, List};
+insert(List, Position, Element) ->
+  {Head, Tail} = List,
+  NewList = {Head, insert(Tail, Position - 1, Element)},
+  NewList.
 
-get_head({Head, _}, 0) -> {Head};
-get_head({Head, Tail}, Position) ->
-  {Head, get_head(Tail, Position - 1)}.
+%%delete(L,Pos) -> delete(L,Pos,)
+%%delete({A},_) -> {A};
+%% Abbruch der Rekursion muss zwei elementiges Tupel sein sonst wird letztes element nicht gelöscht
+delete({A,B},2) -> {A};
+delete({HList,TList},Pos) ->
+  if Pos == 1 ->
+    delete(TList,(Pos-1));
+  true ->
+    {HList, delete(TList,(Pos-1))}
+  end.
 
-%%insert(NewList,Pos,Elem,OldList) -> {ActE,RestList} = OldList,
-%%  if Pos == (length(NewList) + 1) ->
-%%    Newlist2 = {NewList,Elem},
-%%    insert(Newlist2,Pos,Elem,RestList);
-%%    true ->
-%%      Newlist2 = {NewList,ActE},
-%%      insert(Newlist2,Pos,Elem,RestList)
-%%  end.
+find(List,Elem) -> find(List,Elem,1).
+find({Elem},Elem, Pos) -> Pos;
+find({Elem,T},Elem, Pos) -> Pos;
+find({HList,TList},Elem,Pos) -> find(TList,Elem,(Pos+1)).
 
-%%  actPos = 1 + insert(RestList,Pos,Elem),
-%%  actPos == Pos,
-%%  List.
+retrieve({H,T},1) -> H;
+retrieve({H},1) -> H;
+retrieve({H,T},Pos) -> retrieve(T,(Pos-1)).
 
+concat({H1},L2) -> {H1,L2};
+concat({H1,T1},L2) -> {H1,concat(T1,L2)}.
 
-delete(List,Pos) ->
-  lists:seq(1,laenge(List)).
-  
-
-
-concat(List1,List2) -> List1 + List2.
+%% diffList(L1, {}, L1);
+%% diffList(L1, {Kopf2,Rest2}, L3) ->
